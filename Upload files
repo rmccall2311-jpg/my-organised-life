@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MOL Icon Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+        }
+        canvas {
+            border: 2px solid #ddd;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 10px 10px 0;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .instructions {
+            background: #f0f7ff;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 My Organised Life - Icon Generator</h1>
+        <p>Click the buttons below to download your custom app icons!</p>
+        
+        <div class="instructions">
+            <strong>📥 Instructions:</strong>
+            <ol>
+                <li>Click "Download 192x192 Icon" and save as <strong>icon-192.png</strong></li>
+                <li>Click "Download 512x512 Icon" and save as <strong>icon-512.png</strong></li>
+                <li>Upload both files to your GitHub repository</li>
+            </ol>
+        </div>
+
+        <h3>Preview - 192x192:</h3>
+        <canvas id="canvas192" width="192" height="192"></canvas>
+        <br>
+        <button onclick="downloadIcon(192)">Download 192x192 Icon</button>
+
+        <h3>Preview - 512x512:</h3>
+        <canvas id="canvas512" width="512" height="512"></canvas>
+        <br>
+        <button onclick="downloadIcon(512)">Download 512x512 Icon</button>
+    </div>
+
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Create orange gradient background
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#ff9a56');
+            gradient.addColorStop(1, '#ff6a00');
+            
+            // Draw rounded rectangle background
+            const radius = size * 0.176; // 90/512 ratio for rounded corners
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, size, size, radius);
+            ctx.fill();
+            
+            // Draw "MOL" text
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.39}px Broadway, Impact, Arial Black, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.letterSpacing = `${size * 0.01}px`;
+            ctx.fillText('MOL', size / 2, size * 0.55);
+        }
+
+        // Draw both canvases on load
+        window.onload = function() {
+            drawIcon(document.getElementById('canvas192'), 192);
+            drawIcon(document.getElementById('canvas512'), 512);
+        };
+
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
