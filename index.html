@@ -2207,6 +2207,17 @@
             if (task.recurring) {
                 document.getElementById('editTaskRecurringType').value = task.recurringType || 'yearly';
             }
+            
+            // Populate estimated time
+            if (task.estimatedTime) {
+                const hours = Math.floor(task.estimatedTime / 60);
+                const minutes = task.estimatedTime % 60;
+                document.getElementById('editEstimatedHours').value = hours;
+                document.getElementById('editEstimatedMinutes').value = minutes;
+            } else {
+                document.getElementById('editEstimatedHours').value = '';
+                document.getElementById('editEstimatedMinutes').value = '';
+            }
 
             // Populate category dropdown
             const editCategorySelect = document.getElementById('editTaskCategory');
@@ -2246,6 +2257,12 @@
                 task.eventType = document.getElementById('editTaskEventType').value;
                 task.recurring = document.getElementById('editTaskRecurring').checked;
                 task.recurringType = document.getElementById('editTaskRecurring').checked ? document.getElementById('editTaskRecurringType').value : null;
+                
+                // Update estimated time
+                const editHours = parseInt(document.getElementById('editEstimatedHours').value) || 0;
+                const editMinutes = parseInt(document.getElementById('editEstimatedMinutes').value) || 0;
+                task.estimatedTime = editHours * 60 + editMinutes;
+                
                 task.subtasks = editingSubtasks;
 
                 saveTasks();
