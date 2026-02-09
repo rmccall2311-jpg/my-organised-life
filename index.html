@@ -1578,7 +1578,18 @@
         }
 
         function saveCategories() {
+            // Always save to localStorage as backup
             localStorage.setItem('categories', JSON.stringify(categories));
+            
+            // Also save to Firebase if logged in
+            if (currentUser && db) {
+                const batch = db.batch();
+                categories.forEach((cat) => {
+                    const docRef = db.collection('users').doc(currentUser.uid).collection('categories').doc(cat.id);
+                    batch.set(docRef, cat);
+                });
+                batch.commit().catch((error) => console.error('Error saving categories:', error));
+            }
         }
 
         function getCategoryById(id) {
@@ -1641,7 +1652,18 @@
         }
 
         function saveTasks() {
+            // Always save to localStorage as backup
             localStorage.setItem('tasks', JSON.stringify(tasks));
+            
+            // Also save to Firebase if logged in
+            if (currentUser && db) {
+                tasks.forEach((task) => {
+                    db.collection('users').doc(currentUser.uid).collection('tasks')
+                        .doc(task.id.toString())
+                        .set(task)
+                        .catch((error) => console.error('Error saving task:', error));
+                });
+            }
         }
 
         function getFilteredTasks() {
@@ -2385,41 +2407,6 @@
                     }
                 });
         }
-        
-        // Save tasks to Firebase (override existing saveTasks function)
-        const originalSaveTasks = saveTasks;
-        saveTasks = function() {
-            if (!currentUser) {
-                // Fallback to localStorage if not logged in
-                localStorage.setItem('tasks', JSON.stringify(tasks));
-                return;
-            }
-            
-            // Save to Firebase
-            tasks.forEach((task) => {
-                db.collection('users').doc(currentUser.uid).collection('tasks')
-                    .doc(task.id.toString())
-                    .set(task)
-                    .catch((error) => console.error('Error saving task:', error));
-            });
-        };
-        
-        // Save categories to Firebase (override existing saveCategories function)
-        const originalSaveCategories = saveCategories;
-        saveCategories = function() {
-            if (!currentUser) {
-                localStorage.setItem('categories', JSON.stringify(categories));
-                return;
-            }
-            
-            // Clear existing categories and save new ones
-            const batch = db.batch();
-            categories.forEach((cat) => {
-                const docRef = db.collection('users').doc(currentUser.uid).collection('categories').doc(cat.id);
-                batch.set(docRef, cat);
-            });
-            batch.commit().catch((error) => console.error('Error saving categories:', error));
-        };
     </script>
     
     <script>
