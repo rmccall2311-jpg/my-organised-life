@@ -1426,12 +1426,15 @@
         }
 
         // Initialize
+        // Initialize app
         document.addEventListener('DOMContentLoaded', () => {
             // Load saved theme
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
             const btn = document.querySelector('.dark-mode-toggle');
-            btn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+            if (btn) {
+                btn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+            }
 
             renderCategories();
             renderCategoryOptions();
@@ -1447,12 +1450,59 @@
             document.getElementById('editTaskRecurring').addEventListener('change', (e) => {
                 document.getElementById('editRecurringOptions').style.display = e.target.checked ? 'block' : 'none';
             });
-        });
+            
+            // Handle edit form submission
+            document.getElementById('editTaskForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                if (!editingTaskId) return;
 
-        // Form submission
-        document.getElementById('taskForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            addTask();
+                const task = tasks.find(t => t.id === editingTaskId);
+                if (!task) return;
+
+                // Update task
+                task.title = document.getElementById('editTaskTitle').value;
+                task.description = document.getElementById('editTaskDescription').value;
+                task.notes = document.getElementById('editTaskNotes').value;
+                task.category = document.getElementById('editTaskCategory').value;
+                task.priority = document.getElementById('editTaskPriority').value;
+                task.dueDate = document.getElementById('editTaskDueDate').value;
+                task.eventType = document.getElementById('editTaskEventType').value;
+                task.recurring = document.getElementById('editTaskRecurring').checked;
+                task.recurringType = document.getElementById('editTaskRecurring').checked ? document.getElementById('editTaskRecurringType').value : null;
+                
+                // Update estimated time
+                const editHours = parseInt(document.getElementById('editEstimatedHours').value) || 0;
+                const editMinutes = parseInt(document.getElementById('editEstimatedMinutes').value) || 0;
+                task.estimatedTime = editHours * 60 + editMinutes;
+                
+                task.subtasks = editingSubtasks;
+
+                saveTasks();
+                renderFilterButtons();
+                renderTasks();
+                updateStats();
+                closeEditModal();
+            });
+
+            // Close modal when clicking outside
+            document.getElementById('editModal').addEventListener('click', (e) => {
+                if (e.target.id === 'editModal') {
+                    closeEditModal();
+                }
+            });
+
+            document.getElementById('summaryModal').addEventListener('click', (e) => {
+                if (e.target.id === 'summaryModal') {
+                    closeSummary();
+                }
+            });
+            
+            // Task form submission
+            document.getElementById('taskForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                addTask();
+            });
         });
 
         // Category Management Functions
@@ -2236,55 +2286,6 @@
             document.getElementById('editModal').classList.remove('active');
             editingTaskId = null;
         }
-
-        // Handle edit form submission
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('editTaskForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                if (!editingTaskId) return;
-
-                const task = tasks.find(t => t.id === editingTaskId);
-                if (!task) return;
-
-                // Update task
-                task.title = document.getElementById('editTaskTitle').value;
-                task.description = document.getElementById('editTaskDescription').value;
-                task.notes = document.getElementById('editTaskNotes').value;
-                task.category = document.getElementById('editTaskCategory').value;
-                task.priority = document.getElementById('editTaskPriority').value;
-                task.dueDate = document.getElementById('editTaskDueDate').value;
-                task.eventType = document.getElementById('editTaskEventType').value;
-                task.recurring = document.getElementById('editTaskRecurring').checked;
-                task.recurringType = document.getElementById('editTaskRecurring').checked ? document.getElementById('editTaskRecurringType').value : null;
-                
-                // Update estimated time
-                const editHours = parseInt(document.getElementById('editEstimatedHours').value) || 0;
-                const editMinutes = parseInt(document.getElementById('editEstimatedMinutes').value) || 0;
-                task.estimatedTime = editHours * 60 + editMinutes;
-                
-                task.subtasks = editingSubtasks;
-
-                saveTasks();
-                renderFilterButtons();
-                renderTasks();
-                updateStats();
-                closeEditModal();
-            });
-
-            // Close modal when clicking outside
-            document.getElementById('editModal').addEventListener('click', (e) => {
-                if (e.target.id === 'editModal') {
-                    closeEditModal();
-                }
-            });
-
-            document.getElementById('summaryModal').addEventListener('click', (e) => {
-                if (e.target.id === 'summaryModal') {
-                    closeSummary();
-                }
-            });
-        });
     </script>
     
     <!-- Firebase SDK -->
