@@ -2319,7 +2319,12 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
         
+        // Make globally accessible
+        window.auth = auth;
+        window.db = db;
+        
         let currentUser = null;
+        window.currentUser = null; // Make it globally accessible
         
         // Show auth section by default until we know auth state
         document.getElementById('authSection').style.display = 'flex';
@@ -2329,12 +2334,14 @@
         auth.onAuthStateChanged((user) => {
             if (user) {
                 currentUser = user;
+                window.currentUser = user; // Update global reference
                 document.getElementById('authSection').style.display = 'none';
                 document.getElementById('appContent').style.display = 'block';
                 loadTasksFromFirebase();
                 setupRealtimeSync();
             } else {
                 currentUser = null;
+                window.currentUser = null; // Update global reference
                 document.getElementById('authSection').style.display = 'flex';
                 document.getElementById('appContent').style.display = 'none';
             }
