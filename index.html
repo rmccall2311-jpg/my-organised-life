@@ -465,6 +465,17 @@
         .auth-section {
             max-width: 400px;
             margin: 100px auto;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        #authSection {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .auth-tabs {
@@ -770,13 +781,25 @@
             }
 
             .dark-mode-toggle,
-            .summary-btn {
+            .summary-btn,
+            .planner-btn,
+            .logout-btn {
                 position: relative;
                 left: auto !important;
+                right: auto !important;
                 display: inline-block;
                 margin: 5px 3px;
                 font-size: 11px;
                 padding: 6px 10px;
+            }
+
+            .auth-section {
+                margin: 20px auto;
+                padding: 0 20px;
+            }
+
+            .auth-section .card {
+                padding: 20px;
             }
         }
 
@@ -1108,14 +1131,23 @@
         }
 
         function login() {
+            console.log('Login button clicked');
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            console.log('Email:', email, 'Password length:', password.length);
 
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+
+            console.log('Attempting Firebase login...');
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
                     console.log('Login successful');
                 })
                 .catch((error) => {
+                    console.error('Login error:', error);
                     alert('Login failed: ' + error.message);
                 });
         }
