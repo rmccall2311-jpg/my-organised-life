@@ -480,33 +480,37 @@
 
         .auth-tabs {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 10px;
         }
 
         .auth-tab {
             flex: 1;
             padding: 15px;
-            background: rgba(255, 255, 255, 0.3);
+            background: #6c757d;
             color: white;
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            border: 3px solid #6c757d;
             border-radius: 8px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 16px;
+            font-weight: 700;
+            font-size: 18px;
             transition: all 0.3s;
             text-align: center;
         }
 
         .auth-tab.active {
-            background: white;
-            color: #ff6a00;
-            border-color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
             transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
         }
 
         .auth-tab:hover {
-            background: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
 
         .auth-form {
@@ -834,6 +838,11 @@
 
             <div class="auth-section">
                 <div class="card">
+                    <p style="text-align: center; margin-bottom: 20px; color: #333; font-size: 14px;">
+                        <strong>Already have an account?</strong> Use Login tab below.<br>
+                        <strong>New user?</strong> Click the "Sign Up" tab to create an account.
+                    </p>
+                    
                     <div class="auth-tabs">
                         <button class="auth-tab active" onclick="showAuthTab('login')">Login</button>
                         <button class="auth-tab" onclick="showAuthTab('signup')">Sign Up</button>
@@ -1174,14 +1183,30 @@
             }
 
             showDebug('5. Firebase auth exists: ' + (typeof auth !== 'undefined'));
-            showDebug('6. Attempting Firebase login...');
+            showDebug('6. Attempting Firebase login... (this may take up to 30 seconds on mobile)');
+            
+            // Increase timeout to 30 seconds for mobile
+            let loginTimeout = setTimeout(() => {
+                showDebug('⚠️ TIMEOUT: Firebase not responding after 30 seconds');
+                showDebug('This might be a network issue. Try:');
+                showDebug('- Switching WiFi/Mobile Data');
+                showDebug('- Using a different browser');
+                showDebug('- Checking if Firebase is blocked');
+                alert('Login timeout. Please check your internet connection or try a different network.');
+            }, 30000); // 30 second timeout
+            
+            // Set Firebase timeout settings
+            auth.settings.appVerificationDisabledForTesting = false;
             
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
+                    clearTimeout(loginTimeout);
                     showDebug('7. ✅ Login successful!');
                 })
                 .catch((error) => {
-                    showDebug('8. ❌ Login error: ' + error.message);
+                    clearTimeout(loginTimeout);
+                    showDebug('8. ❌ Login error: ' + error.code);
+                    showDebug('   Error message: ' + error.message);
                     console.error('Login error:', error);
                     alert('Login failed: ' + error.message);
                 });
