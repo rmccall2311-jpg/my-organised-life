@@ -486,18 +486,27 @@
 
         .auth-tab {
             flex: 1;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.3);
             color: white;
-            border: none;
+            border: 2px solid rgba(255, 255, 255, 0.5);
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            transition: background 0.3s;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-align: center;
         }
 
         .auth-tab.active {
-            background: rgba(255, 255, 255, 0.4);
+            background: white;
+            color: #ff6a00;
+            border-color: white;
+            transform: scale(1.05);
+        }
+
+        .auth-tab:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
 
         .auth-form {
@@ -832,6 +841,10 @@
 
                     <!-- Login Form -->
                     <form id="loginForm" class="auth-form active" onsubmit="event.preventDefault(); login();">
+                        <div id="debugMessages" style="background: #f0f0f0; padding: 10px; margin-bottom: 15px; border-radius: 6px; font-size: 12px; display: none;">
+                            <strong>Debug:</strong>
+                            <div id="debugText"></div>
+                        </div>
                         <div class="form-group">
                             <label for="loginEmail">Email</label>
                             <input type="email" id="loginEmail" required>
@@ -845,6 +858,10 @@
 
                     <!-- Signup Form -->
                     <form id="signupForm" class="auth-form" onsubmit="event.preventDefault(); signup();">
+                        <div id="signupDebugMessages" style="background: #f0f0f0; padding: 10px; margin-bottom: 15px; border-radius: 6px; font-size: 12px; display: none;">
+                            <strong>Debug:</strong>
+                            <div id="signupDebugText"></div>
+                        </div>
                         <div class="form-group">
                             <label for="signupEmail">Email</label>
                             <input type="email" id="signupEmail" required>
@@ -1116,6 +1133,17 @@
         let currentUser = null;
         window.currentUser = null;
 
+        // Debug helper function
+        function showDebug(message) {
+            const debugDiv = document.getElementById('debugMessages');
+            const debugText = document.getElementById('debugText');
+            if (debugDiv && debugText) {
+                debugDiv.style.display = 'block';
+                debugText.innerHTML += message + '<br>';
+            }
+            console.log(message);
+        }
+
         // Authentication Functions
         function showAuthTab(tab) {
             document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
@@ -1131,36 +1159,76 @@
         }
 
         function login() {
-            console.log('Login button clicked');
+            showDebug('1. Login button clicked');
+            
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            console.log('Email:', email, 'Password length:', password.length);
+            
+            showDebug('2. Email: ' + email);
+            showDebug('3. Password length: ' + password.length);
 
             if (!email || !password) {
+                showDebug('4. ERROR: Missing email or password');
                 alert('Please enter both email and password');
                 return;
             }
 
-            console.log('Attempting Firebase login...');
+            showDebug('5. Firebase auth exists: ' + (typeof auth !== 'undefined'));
+            showDebug('6. Attempting Firebase login...');
+            
             auth.signInWithEmailAndPassword(email, password)
                 .then(() => {
-                    console.log('Login successful');
+                    showDebug('7. ✅ Login successful!');
                 })
                 .catch((error) => {
+                    showDebug('8. ❌ Login error: ' + error.message);
                     console.error('Login error:', error);
                     alert('Login failed: ' + error.message);
                 });
         }
 
         function signup() {
+            const debugDiv = document.getElementById('signupDebugMessages');
+            const debugText = document.getElementById('signupDebugText');
+            
+            function showSignupDebug(msg) {
+                if (debugDiv && debugText) {
+                    debugDiv.style.display = 'block';
+                    debugText.innerHTML += msg + '<br>';
+                }
+                console.log(msg);
+            }
+            
+            showSignupDebug('1. Signup button clicked');
+            
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
+            
+            showSignupDebug('2. Email: ' + email);
+            showSignupDebug('3. Password length: ' + password.length);
 
+            if (!email || !password) {
+                showSignupDebug('4. ERROR: Missing email or password');
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showSignupDebug('5. ERROR: Password too short');
+                alert('Password must be at least 6 characters');
+                return;
+            }
+
+            showSignupDebug('6. Attempting Firebase signup...');
+            
             auth.createUserWithEmailAndPassword(email, password)
                 .then(() => {
+                    showSignupDebug('7. ✅ Signup successful!');
                     console.log('Signup successful');
                 })
                 .catch((error) => {
+                    showSignupDebug('8. ❌ Signup error: ' + error.message);
+                    console.error('Signup error:', error);
                     alert('Signup failed: ' + error.message);
                 });
         }
